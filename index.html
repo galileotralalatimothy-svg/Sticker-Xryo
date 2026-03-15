@@ -1,1 +1,173 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ZryoX Sticker Gallery</title><style>:root{--bg:#0c0c0c;--card-bg:#161616;--text-primary:#fff;--text-secondary:#888;--accent:#333;--border:#222}*{box-sizing:border-box;margin:0;padding:0;font-family:sans-serif}body{background-color:var(--bg);color:var(--text-primary);padding:20px}header{margin-bottom:25px;text-align:left}.gallery-title{font-size:22px;font-weight:700}.gallery-subtitle{font-size:14px;color:var(--text-secondary);margin-bottom:20px}.player-info{margin-bottom:15px}.player-name{font-size:18px;font-weight:600}.sticker-count{font-size:13px;color:var(--text-secondary)}.header-buttons{display:flex;gap:10px;margin-top:15px}.btn{background-color:var(--accent);color:#fff;border:none;padding:10px 15px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer}.sticker-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;max-width:600px}.sticker-card{background-color:var(--card-bg);border-radius:12px;overflow:hidden;border:1px solid var(--border);display:flex;flex-direction:column}.image-container{width:100%;aspect-ratio:1/1;background-color:#000;display:flex;align-items:center;justify-content:center;padding:10px}.sticker-image{max-width:100%;max-height:100%;object-fit:contain}.card-details{padding:12px;background:var(--card-bg)}.sticker-id{font-size:11px;color:var(--text-secondary);margin-bottom:8px;font-family:monospace}.copy-btn{background-color:var(--accent);color:#fff;border:none;padding:8px;border-radius:5px;font-size:11px;width:100%;cursor:pointer}#status{text-align:center;margin-top:50px;color:var(--text-secondary)}</style></head><body><header><div class="gallery-title">ZryoX's Gallery</div><div class="gallery-subtitle">Sticker Gallery</div><div id="ui-header" style="display:none"><div class="player-info"><div class="player-name" id="p-name">Loading...</div><div class="sticker-count" id="p-count">0 stickers</div></div><div class="header-buttons"><button class="btn" id="copy-all">Copy All IDs</button><button class="btn" id="raw-link">RAW</button></div></div></header><div id="status">Fetching stickers...</div><div class="sticker-grid" id="sticker-grid"></div><script>const grid=document.getElementById("sticker-grid"),status=document.getElementById("status"),uiHeader=document.getElementById("ui-header"),nameLabel=document.getElementById("p-name"),countLabel=document.getElementById("p-count"),urlParams=new URLSearchParams(window.location.search),pasteID=urlParams.get("id");let currentIDs=[];async function load(){if(!pasteID)return void(status.innerText="No ID found in URL.");try{const t=await fetch(`https://api.pastefy.app/paste/${pasteID}`),e=await t.json(),n=e.paste.content;if(currentIDs=n.match(/\d{5,}/g)||[],0===currentIDs.length)return void(status.innerText="No stickers found.");status.style.display="none",uiHeader.style.display="block",nameLabel.innerText=e.paste.title||"Unknown Player",countLabel.innerText=`${currentIDs.length} stickers collected`,document.getElementById("raw-link").onclick=()=>window.open(`https://pastefy.app/${pasteID}/raw`),grid.innerHTML="",currentIDs.forEach(t=>{const e=document.createElement("div");e.className="sticker-card",e.innerHTML=`<div class="image-container"><img src="https://www.roblox.com/asset-thumbnail/image?assetId=${t}&width=420&height=420&format=png" class="sticker-image" onerror="this.src='https://tr.rbxcdn.com/180DAY-5a72278ef15969615cefcc684868d3af/420/420/Image/Png/noFilter'"></div><div class="card-details"><div class="sticker-id">${t}</div><button class="copy-btn" onclick="copyText('${t}',this)">Copy ID</button></div>`,grid.appendChild(e)})}catch(t){status.innerText="Error loading stickers."}}function copyText(t,e){navigator.clipboard.writeText(t);const n=e.innerText;e.innerText="Copied!",setTimeout(()=>e.innerText=n,1500)}document.getElementById("copy-all").onclick=function(){navigator.clipboard.writeText(currentIDs.join("\n")),this.innerText="Copied All!",setTimeout(()=>this.innerText="Copy All IDs",1500)},load();</script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>ZryoX Sticker Gallery</title>
+    <style>
+        :root {
+            --bg: #0c0c0c;
+            --card-bg: #161616;
+            --text-primary: #fff;
+            --text-secondary: #888;
+            --accent: #333;
+            --border: #222;
+        }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: sans-serif;
+        }
+        body {
+            background-color: var(--bg);
+            color: var(--text-primary);
+            padding: 20px;
+        }
+        header {
+            margin-bottom: 25px;
+            text-align: left;
+        }
+        .gallery-title {
+            font-size: 22px;
+            font-weight: 700;
+        }
+        .gallery-subtitle {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+        }
+        .player-info {
+            margin-bottom: 15px;
+        }
+        .player-name {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        .sticker-count {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+        .header-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .btn {
+            background-color: var(--accent);
+            color: #fff;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .sticker-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            max-width: 600px;
+        }
+        .sticker-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+        }
+        .image-container {
+            width: 100%;
+            aspect-ratio: 1/1;
+            background-color: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+        }
+        .sticker-image {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        .card-details {
+            padding: 12px;
+            background: var(--card-bg);
+        }
+        .sticker-id {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            font-family: monospace;
+        }
+        .copy-btn {
+            background-color: var(--accent);
+            color: #fff;
+            border: none;
+            padding: 8px;
+            border-radius: 5px;
+            font-size: 11px;
+            width: 100%;
+            cursor: pointer;
+        }
+        #status {
+            text-align: center;
+            margin-top: 50px;
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="gallery-title">ZryoX's Gallery</div>
+        <div class="gallery-subtitle">Sticker Gallery</div>
+        <div id="ui-header" style="display:none">
+            <div class="player-info">
+                <div class="player-name" id="p-name">Loading...</div>
+                <div class="sticker-count" id="p-count">0 stickers</div>
+            </div>
+            <div class="header-buttons">
+                <button class="btn" id="copy-all">Copy All IDs</button>
+                <button class="btn" id="raw-link">RAW</button>
+            </div>
+        </div>
+    </header>
+    <div id="status">Fetching stickers...</div>
+    <div class="sticker-grid" id="sticker-grid"></div>
+    <script>
+        const grid = document.getElementById("sticker-grid"),
+              status = document.getElementById("status"),
+              uiHeader = document.getElementById("ui-header"),
+              nameLabel = document.getElementById("p-name"),
+              countLabel = document.getElementById("p-count"),
+              urlParams = new URLSearchParams(window.location.search),
+              pasteID = urlParams.get("id");
+        let currentIDs = [];
+        async function load() {
+            if (!pasteID) return void(status.innerText = "No ID found in URL.");
+            try {
+                const t = await fetch(`https://api.pastefy.app/paste/${pasteID}`),
+                      e = await t.json(),
+                      n = e.paste.content;
+                currentIDs = n.match(/\d{5,}/g) || [];
+                if (0 === currentIDs.length) return void(status.innerText = "No stickers found.");
+                status.style.display = "none", uiHeader.style.display = "block", nameLabel.innerText = e.paste.title || "Unknown Player", countLabel.innerText = `${currentIDs.length} stickers collected`, document.getElementById("raw-link").onclick = () => window.open(`https://pastefy.app/${pasteID}/raw`), grid.innerHTML = "", currentIDs.forEach(t => {
+                    const e = document.createElement("div");
+                    e.className = "sticker-card", e.innerHTML = `<div class="image-container"><img src="https://www.roblox.com/asset-thumbnail/image?assetId=${t}&width=420&height=420&format=png" class="sticker-image" onerror="this.src='https://tr.rbxcdn.com/c4265017c98559993061733b1125a23c/48/48/AvatarHeadshot/Png'"></div><div class="card-details"><div class="sticker-id">${t}</div><button class="copy-btn" onclick="copyText('${t}',this)">Copy ID</button></div>`, grid.appendChild(e)
+                })
+            } catch (t) {
+                status.innerText = "Error loading stickers."
+            }
+        }
+        function copyText(t, e) {
+            navigator.clipboard.writeText(t);
+            const n = e.innerText;
+            e.innerText = "Copied!", setTimeout(() => e.innerText = n, 1500)
+        }
+        document.getElementById("copy-all").onclick = function() {
+            navigator.clipboard.writeText(currentIDs.join("\n")), this.innerText = "Copied All!", setTimeout(() => this.innerText = "Copy All IDs", 1500)
+        }, load();
+    </script>
+</body>
+</html>
