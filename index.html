@@ -43,33 +43,85 @@
     </header>
     <div id="status">Fetching stickers...</div>
     <div class="sticker-grid" id="sticker-grid"></div>
+
     <script>
-        const grid=document.getElementById("sticker-grid"),status=document.getElementById("status"),uiHeader=document.getElementById("ui-header"),nameLabel=document.getElementById("p-name"),countLabel=document.getElementById("p-count"),urlParams=new URLSearchParams(window.location.search),pasteID=urlParams.get("id");
-        let currentIDs=[];
-        async function load(){
-            if(!pasteID) return status.innerText="No ID found in URL.";
+        const grid = document.getElementById("sticker-grid");
+        const status = document.getElementById("status");
+        const uiHeader = document.getElementById("ui-header");
+        const nameLabel = document.getElementById("p-name");
+        const countLabel = document.getElementById("p-count");
+        const urlParams = new URLSearchParams(window.location.search);
+        const pasteID = urlParams.get("id");
+
+        let currentIDs = [];
+
+        async function load() {
+            if (!pasteID) {
+                status.innerText = "No ID found in URL. Example: ?id=nejglui";
+                return;
+            }
+
             try {
-                const res=await fetch(`https://api.pastefy.app/paste/${pasteID}`);
-                const data=await res.json();
-                if(!data.paste) throw new Error();
-                const content=data.paste.content;
-                currentIDs=content.match(/\d{6,}/g)||[]; 
-                if(currentIDs.length===0) return status.innerText="No valid sticker IDs found.";
-                status.style.display="none"; uiHeader.style.display="block";
-                nameLabel.innerText=data.paste.title||"Unknown Player";
-                countLabel.innerText=`${currentIDs.length} stickers collected`;
-                document.getElementById("raw-link").onclick=()=>window.open(`https://pastefy.app/${pasteID}/raw`);
-                grid.innerHTML="";
-                currentIDs.forEach(id=>{
-                    const card=document.createElement("div");
-                    card.className="sticker-card";
-                    card.innerHTML=`<div class="image-container"><img src="https://tr.rbxcdn.com/asset-thumbnail/image?assetId=${id}&width=420&height=420&format=png" class="sticker-image" onerror="this.src='https://tr.rbxcdn.com/c4265017c98559993061733b1125a23c/48/48/AvatarHeadshot/Png'"></div><div class="card-details"><div class="sticker-id">${id}</div><button class="copy-btn" onclick="copyText('${id}',this)">Copy ID</button></div>`;
+                const res = await fetch(`https://api.pastefy.app/paste/${pasteID}`);
+                const data = await res.json();
+
+                if (!data.paste) throw new Error("No paste found");
+
+                const content = data.paste.content;
+                currentIDs = content.match(/\d{6,}/g) || [];
+
+                if (currentIDs.length === 0) {
+                    status.innerText = "No valid sticker IDs found in the paste.";
+                    return;
+                }
+
+                status.style.display = "none";
+                uiHeader.style.display = "block";
+
+                nameLabel.innerText = data.paste.title || "Unknown Player";
+                countLabel.innerText = `${currentIDs.length} stickers collected`;
+
+                document.getElementById("raw-link").onclick = () => {
+                    window.open(`https://pastefy.app/${pasteID}/raw`);
+                };
+
+                grid.innerHTML = "";
+
+                currentIDs.forEach(id => {
+                    const card = document.createElement("div");
+                    card.className = "sticker-card";
+                    card.innerHTML = `
+                        <div class="image-container">
+                            <img src="https://www.roblox.com/asset-thumbnail/image?assetId=${id}&width=420&height=420&format=png" 
+                                 class="sticker-image" 
+                                 onerror="this.src='https://tr.rbxcdn.com/c4265017c98559993061733b1125a23c/48/48/AvatarHeadshot/Png'">
+                        </div>
+                        <div class="card-details">
+                            <div class="sticker-id">${id}</div>
+                            <button class="copy-btn" onclick="copyText('${id}', this)">Copy ID</button>
+                        </div>`;
                     grid.appendChild(card);
                 });
-            } catch(e) { status.innerText="Error loading stickers."; }
+
+            } catch (e) {
+                console.error(e);
+                status.innerText = "Error loading stickers. Check console for details.";
+            }
         }
-        function copyText(t,e){ navigator.clipboard.writeText(t); const o=e.innerText; e.innerText="Copied!",setTimeout(()=>e.innerText=o,1500); }
-        document.getElementById("copy-all").onclick=function(){ navigator.clipboard.writeText(currentIDs.join("\n")); this.innerText="Copied All!"; setTimeout(()=>this.innerText="Copy All IDs",1500); };
+
+        function copyText(text, button) {
+            navigator.clipboard.writeText(text);
+            const original = button.innerText;
+            button.innerText = "Copied!";
+            setTimeout(() => button.innerText = original, 1500);
+        }
+
+        document.getElementById("copy-all").onclick = function() {
+            navigator.clipboard.writeText(currentIDs.join("\n"));
+            this.innerText = "Copied All!";
+            setTimeout(() => this.innerText = "Copy All IDs", 1500);
+        };
+
         load();
     </script>
 </body>
