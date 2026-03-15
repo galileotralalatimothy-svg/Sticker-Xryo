@@ -53,7 +53,6 @@
                 const data=await res.json();
                 if(!data.paste) throw new Error();
                 const content=data.paste.content;
-                // Mas matalinong regex para makuha lang ang mahahabang numbers
                 currentIDs=content.match(/\d{6,}/g)||[]; 
                 if(currentIDs.length===0) return status.innerText="No valid sticker IDs found.";
                 status.style.display="none"; uiHeader.style.display="block";
@@ -64,10 +63,10 @@
                 currentIDs.forEach(id=>{
                     const card=document.createElement("div");
                     card.className="sticker-card";
-                    card.innerHTML=`<div class="image-container"><img src="https://www.roblox.com/asset-thumbnail/image?assetId=${id}&width=420&height=420&format=png" class="sticker-image" onerror="this.src='https://tr.rbxcdn.com/c4265017c98559993061733b1125a23c/48/48/AvatarHeadshot/Png'"></div><div class="card-details"><div class="sticker-id">${id}</div><button class="copy-btn" onclick="copyText('${id}',this)">Copy ID</button></div>`;
+                    card.innerHTML=`<div class="image-container"><img src="https://tr.rbxcdn.com/asset-thumbnail/image?assetId=${id}&width=420&height=420&format=png" class="sticker-image" onerror="this.src='https://tr.rbxcdn.com/c4265017c98559993061733b1125a23c/48/48/AvatarHeadshot/Png'"></div><div class="card-details"><div class="sticker-id">${id}</div><button class="copy-btn" onclick="copyText('${id}',this)">Copy ID</button></div>`;
                     grid.appendChild(card);
                 });
-            } catch(e) { status.innerText="Error loading stickers. Make sure the ID is correct."; }
+            } catch(e) { status.innerText="Error loading stickers."; }
         }
         function copyText(t,e){ navigator.clipboard.writeText(t); const o=e.innerText; e.innerText="Copied!",setTimeout(()=>e.innerText=o,1500); }
         document.getElementById("copy-all").onclick=function(){ navigator.clipboard.writeText(currentIDs.join("\n")); this.innerText="Copied All!"; setTimeout(()=>this.innerText="Copy All IDs",1500); };
