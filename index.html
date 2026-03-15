@@ -5,31 +5,31 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>ZryoX Sticker Gallery</title>
     <style>
-        :root { --bg: #0c0c0c; --card-bg: #161616; --text-primary: #fff; --text-secondary: #888; --accent: #333; --border: #222; }
+        :root { --bg: #0c0c0c; --card-bg: #161616; --text: #fff; --text-sec: #888; --accent: #333; --border: #222; }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
-        body { background-color: var(--bg); color: var(--text-primary); padding: 20px; }
+        body { background: var(--bg); color: var(--text); padding: 20px; }
         header { margin-bottom: 25px; }
-        .gallery-title { font-size: 22px; font-weight: 700; }
-        .gallery-subtitle { font-size: 14px; color: var(--text-secondary); margin-bottom: 20px; }
+        .title { font-size: 22px; font-weight: 700; }
+        .subtitle { font-size: 14px; color: var(--text-sec); margin-bottom: 20px; }
         .player-info { margin-bottom: 15px; }
         .player-name { font-size: 18px; font-weight: 600; }
-        .sticker-count { font-size: 13px; color: var(--text-secondary); }
+        .sticker-count { font-size: 13px; color: var(--text-sec); }
         .header-buttons { display: flex; gap: 10px; margin-top: 15px; }
-        .btn { background-color: var(--accent); color: #fff; border: none; padding: 10px 15px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; }
-        .sticker-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; max-width: 600px; }
-        .sticker-card { background-color: var(--card-bg); border-radius: 12px; overflow: hidden; border: 1px solid var(--border); display: flex; flex-direction: column; }
-        .image-container { width: 100%; aspect-ratio: 1/1; background-color: #000; display: flex; align-items: center; justify-content: center; padding: 10px; }
-        .sticker-image { max-width: 100%; max-height: 100%; object-fit: contain; }
-        .card-details { padding: 12px; background: var(--card-bg); }
-        .sticker-id { font-size: 11px; color: var(--text-secondary); margin-bottom: 8px; font-family: monospace; }
-        .copy-btn { background-color: var(--accent); color: #fff; border: none; padding: 8px; border-radius: 5px; font-size: 11px; width: 100%; cursor: pointer; }
-        #status { text-align: center; margin-top: 50px; color: var(--text-secondary); }
+        .btn { background: var(--accent); color: #fff; border: none; padding: 10px 15px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; max-width: 600px; }
+        .card { background: var(--card-bg); border-radius: 12px; overflow: hidden; border: 1px solid var(--border); display: flex; flex-direction: column; }
+        .img-container { width: 100%; aspect-ratio: 1/1; background: #000; display: flex; align-items: center; justify-content: center; padding: 10px; }
+        .sticker-img { max-width: 100%; max-height: 100%; object-fit: contain; }
+        .card-details { padding: 12px; }
+        .sticker-id { font-size: 11px; color: var(--text-sec); margin-bottom: 8px; font-family: monospace; }
+        .copy-btn { background: var(--accent); color: #fff; border: none; padding: 8px; border-radius: 5px; font-size: 11px; width: 100%; cursor: pointer; }
+        #status { text-align: center; margin-top: 50px; color: var(--text-sec); }
     </style>
 </head>
 <body>
     <header>
-        <div class="gallery-title">ZryoX's Gallery</div>
-        <div class="gallery-subtitle">Sticker Gallery</div>
+        <div class="title">ZryoX's Gallery</div>
+        <div class="subtitle">Sticker Gallery</div>
         <div id="ui-header" style="display:none">
             <div class="player-info">
                 <div class="player-name" id="p-name">Loading...</div>
@@ -42,10 +42,10 @@
         </div>
     </header>
     <div id="status">Fetching stickers...</div>
-    <div class="sticker-grid" id="sticker-grid"></div>
+    <div class="grid" id="grid"></div>
 
     <script>
-        const grid = document.getElementById("sticker-grid");
+        const grid = document.getElementById("grid");
         const status = document.getElementById("status");
         const uiHeader = document.getElementById("ui-header");
         const nameLabel = document.getElementById("p-name");
@@ -57,7 +57,7 @@
 
         async function load() {
             if (!pasteID) {
-                status.innerText = "No ID found in URL. Example: ?id=nejglui";
+                status.innerText = "Walang ID sa URL. Hal: ?id=ZjGxoLXk";
                 return;
             }
 
@@ -65,13 +65,13 @@
                 const res = await fetch(`https://api.pastefy.app/paste/${pasteID}`);
                 const data = await res.json();
 
-                if (!data.paste) throw new Error("No paste found");
+                if (!data.paste) throw new Error("Walang paste");
 
                 const content = data.paste.content;
                 currentIDs = content.match(/\d{6,}/g) || [];
 
                 if (currentIDs.length === 0) {
-                    status.innerText = "No valid sticker IDs found in the paste.";
+                    status.innerText = "Walang valid sticker IDs sa paste.";
                     return;
                 }
 
@@ -87,33 +87,50 @@
 
                 grid.innerHTML = "";
 
-                currentIDs.forEach(id => {
+                const fallback = "https://tr.rbxcdn.com/c4265017c98559993061733b1125a23c/48/48/AvatarHeadshot/Png";
+
+                currentIDs.forEach(async (id, index) => {
                     const card = document.createElement("div");
-                    card.className = "sticker-card";
+                    card.className = "card";
                     card.innerHTML = `
-                        <div class="image-container">
-                            <img src="https://www.roblox.com/asset-thumbnail/image?assetId=${id}&width=420&height=420&format=png" 
-                                 class="sticker-image" 
-                                 onerror="this.src='https://tr.rbxcdn.com/c4265017c98559993061733b1125a23c/48/48/AvatarHeadshot/Png'">
+                        <div class="img-container">
+                            <img class="sticker-img" alt="\( {id}" src=" \){fallback}">
                         </div>
                         <div class="card-details">
                             <div class="sticker-id">${id}</div>
                             <button class="copy-btn" onclick="copyText('${id}', this)">Copy ID</button>
                         </div>`;
+
                     grid.appendChild(card);
+
+                    const img = card.querySelector("img");
+
+                    try {
+                        const proxy = "https://corsproxy.io/?";
+                        const apiUrl = `https://thumbnails.roblox.com/v1/assets?assetIds=${id}&size=420x420&format=Png&isCircular=false`;
+                        const thumbRes = await fetch(proxy + encodeURIComponent(apiUrl));
+                        const thumbData = await thumbRes.json();
+
+                        if (thumbData.data && thumbData.data[0] && thumbData.data[0].imageUrl) {
+                            img.src = thumbData.data[0].imageUrl; // hashed 180DAY link
+                        }
+                    } catch (e) {
+                        console.log("Thumbnail fetch failed for " + id, e);
+                        // fallback stays
+                    }
                 });
 
             } catch (e) {
                 console.error(e);
-                status.innerText = "Error loading stickers. Check console for details.";
+                status.innerText = "Error loading stickers. Check console.";
             }
         }
 
-        function copyText(text, button) {
+        function copyText(text, btn) {
             navigator.clipboard.writeText(text);
-            const original = button.innerText;
-            button.innerText = "Copied!";
-            setTimeout(() => button.innerText = original, 1500);
+            const orig = btn.innerText;
+            btn.innerText = "Copied!";
+            setTimeout(() => btn.innerText = orig, 1500);
         }
 
         document.getElementById("copy-all").onclick = function() {
