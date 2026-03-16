@@ -2,54 +2,166 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>ZryoX Sticker Gallery</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZryoX's Closet</title>
     <style>
-        :root { --bg: #0c0c0c; --card-bg: #161616; --text: #fff; --text-sec: #888; --accent: #333; --border: #222; }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
-        body { background: var(--bg); color: var(--text); padding: 20px; }
-        header { margin-bottom: 25px; }
-        .title { font-size: 22px; font-weight: 700; }
-        .subtitle { font-size: 14px; color: var(--text-sec); margin-bottom: 20px; }
-        .player-info { margin-bottom: 15px; }
-        .player-name { font-size: 18px; font-weight: 600; }
-        .sticker-count { font-size: 13px; color: var(--text-sec); }
-        .header-buttons { display: flex; gap: 10px; margin-top: 15px; }
-        .btn { background: var(--accent); color: #fff; border: none; padding: 10px 15px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; max-width: 600px; }
-        .card { background: var(--card-bg); border-radius: 12px; overflow: hidden; border: 1px solid var(--border); display: flex; flex-direction: column; }
-        .img-container { width: 100%; aspect-ratio: 1/1; background: #000; display: flex; align-items: center; justify-content: center; padding: 10px; }
-        .sticker-img { max-width: 100%; max-height: 100%; object-fit: contain; }
-        .card-details { padding: 12px; }
-        .sticker-id { font-size: 11px; color: var(--text-sec); margin-bottom: 8px; font-family: monospace; }
-        .copy-btn { background: var(--accent); color: #fff; border: none; padding: 8px; border-radius: 5px; font-size: 11px; width: 100%; cursor: pointer; }
-        #status { text-align: center; margin-top: 50px; color: var(--text-sec); }
+        body {
+            background-color: #0c0c0c;
+            color: #ffffff;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            line-height: 1.4;
+        }
+
+        .header {
+            padding-bottom: 15px;
+            border-bottom: 1px solid #1f1f1f;
+            margin-bottom: 25px;
+        }
+
+        .title {
+            font-size: 26px;
+            font-weight: 700;
+            margin: 0;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: #777;
+            margin: 4px 0 0 0;
+        }
+
+        .user-section {
+            margin-bottom: 25px;
+        }
+
+        .username {
+            font-size: 22px;
+            font-weight: 700;
+            margin: 0 0 8px 0;
+        }
+
+        .stats {
+            font-size: 13px;
+            color: #555;
+            margin-bottom: 15px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            background-color: #1a1a1a;
+            color: #efefef;
+            border: 1px solid #2a2a2a;
+            padding: 10px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .card {
+            background-color: #111;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #1f1f1f;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .image-container {
+            aspect-ratio: 1/1;
+            background-color: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+        }
+
+        .image-container img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .card-info {
+            padding: 10px;
+            background-color: #111;
+        }
+
+        .asset-id {
+            font-family: monospace;
+            font-size: 11px;
+            color: #555;
+            margin-bottom: 8px;
+            padding-left: 4px;
+        }
+
+        .copy-btn {
+            width: 100%;
+            background-color: #1a1a1a;
+            color: #999;
+            border: 1px solid #222;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: 0.2s;
+        }
+
+        .copy-btn:hover {
+            background-color: #222;
+            color: #fff;
+        }
+
+        #status {
+            text-align: center;
+            color: #777;
+            margin: 50px 0;
+            font-size: 16px;
+        }
     </style>
 </head>
 <body>
-    <header>
-        <div class="title">ZryoX's Gallery</div>
-        <div class="subtitle">Sticker Gallery</div>
-        <div id="ui-header" style="display:none">
-            <div class="player-info">
-                <div class="player-name" id="p-name">Loading...</div>
-                <div class="sticker-count" id="p-count">0 stickers</div>
-            </div>
-            <div class="header-buttons">
-                <button class="btn" id="copy-all">Copy All IDs</button>
-                <button class="btn" id="raw-link">RAW</button>
-            </div>
+
+    <div class="header">
+        <p class="title">ZryoX's Closet</p>
+        <p class="subtitle">Sticker Gallery</p>
+    </div>
+
+    <div class="user-section" id="userSection" style="display:none;">
+        <p class="username" id="username">Loading...</p>
+        <p class="stats" id="stats">0 stickers · Loading...</p>
+        
+        <div class="button-group">
+            <button class="btn" id="copyAllBtn">Copy All IDs</button>
+            <button class="btn" id="rawBtn">RAW</button>
         </div>
-    </header>
+    </div>
+
     <div id="status">Fetching stickers...</div>
     <div class="grid" id="grid"></div>
 
     <script>
         const grid = document.getElementById("grid");
         const status = document.getElementById("status");
-        const uiHeader = document.getElementById("ui-header");
-        const nameLabel = document.getElementById("p-name");
-        const countLabel = document.getElementById("p-count");
+        const userSection = document.getElementById("userSection");
+        const usernameEl = document.getElementById("username");
+        const statsEl = document.getElementById("stats");
+        const copyAllBtn = document.getElementById("copyAllBtn");
+        const rawBtn = document.getElementById("rawBtn");
+
         const urlParams = new URLSearchParams(window.location.search);
         const pasteID = urlParams.get("id");
 
@@ -57,7 +169,7 @@
 
         async function load() {
             if (!pasteID) {
-                status.innerText = "Walang ID sa URL. Halimbawa: ?id=ZjGxoLXk";
+                status.innerText = "Walang ID sa URL. Halimbawa: ?id=XXXXXX";
                 return;
             }
 
@@ -67,7 +179,9 @@
                 const res = await fetch(`https://api.pastefy.app/paste/${pasteID}`);
                 const data = await res.json();
 
-                if (!data.paste) throw new Error("Walang paste");
+                if (!data.paste || !data.paste.content) {
+                    throw new Error("Walang paste o content");
+                }
 
                 const content = data.paste.content;
                 currentIDs = content.match(/\d{6,}/g) || [];
@@ -77,27 +191,39 @@
                     return;
                 }
 
+                // Show UI
                 status.style.display = "none";
-                uiHeader.style.display = "block";
+                userSection.style.display = "block";
 
-                nameLabel.innerText = data.paste.title || "Unknown Player";
-                countLabel.innerText = `${currentIDs.length} stickers collected`;
+                // Username from paste title
+                usernameEl.innerText = data.paste.title || "ZryoX's Stickers";
 
-                document.getElementById("raw-link").onclick = () => {
-                    window.open(`https://pastefy.app/${pasteID}/raw`);
+                // Stats with date (use current date for simplicity)
+                const dateStr = new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) + " " + new Date().toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+                statsEl.innerText = `${currentIDs.length} stickers · ${dateStr}`;
+
+                // RAW button
+                rawBtn.onclick = () => window.open(`https://pastefy.app/${pasteID}/raw`);
+
+                // Copy All
+                copyAllBtn.onclick = () => {
+                    navigator.clipboard.writeText(currentIDs.join("\n"));
+                    copyAllBtn.innerText = "Copied!";
+                    setTimeout(() => copyAllBtn.innerText = "Copy All IDs", 1500);
                 };
 
+                // Clear grid
                 grid.innerHTML = "";
 
                 currentIDs.forEach(async (id) => {
                     const card = document.createElement("div");
                     card.className = "card";
                     card.innerHTML = `
-                        <div class="img-container">
+                        <div class="image-container">
                             <img class="sticker-img" alt="\( {id}" src=" \){fallback}">
                         </div>
-                        <div class="card-details">
-                            <div class="sticker-id">${id}</div>
+                        <div class="card-info">
+                            <div class="asset-id">${id}</div>
                             <button class="copy-btn" onclick="copyText('${id}', this)">Copy ID</button>
                         </div>
                     `;
@@ -133,13 +259,8 @@
             setTimeout(() => btn.innerText = orig, 1500);
         }
 
-        document.getElementById("copy-all").onclick = function() {
-            navigator.clipboard.writeText(currentIDs.join("\n"));
-            this.innerText = "Copied All!";
-            setTimeout(() => this.innerText = "Copy All IDs", 1500);
-        };
-
         load();
     </script>
+
 </body>
 </html>
