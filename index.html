@@ -169,7 +169,7 @@
 
         async function load() {
             if (!pasteID) {
-                status.innerText = "Walang ID sa URL. Halimbawa: ?id=XXXXXX";
+                status.innerText = "Walang ID sa URL. Halimbawa: ?id=pNxGRV6E";
                 return;
             }
 
@@ -198,14 +198,14 @@
                 // Username from paste title
                 usernameEl.innerText = data.paste.title || "ZryoX's Stickers";
 
-                // Stats with date (use current date for simplicity)
+                // Stats with current date/time
                 const dateStr = new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) + " " + new Date().toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
                 statsEl.innerText = `${currentIDs.length} stickers · ${dateStr}`;
 
                 // RAW button
                 rawBtn.onclick = () => window.open(`https://pastefy.app/${pasteID}/raw`);
 
-                // Copy All
+                // Copy All IDs
                 copyAllBtn.onclick = () => {
                     navigator.clipboard.writeText(currentIDs.join("\n"));
                     copyAllBtn.innerText = "Copied!";
