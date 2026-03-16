@@ -154,113 +154,101 @@
     <div class="grid" id="grid"></div>
 
     <script>
-        const grid = document.getElementById("grid");
-        const status = document.getElementById("status");
-        const userSection = document.getElementById("userSection");
-        const usernameEl = document.getElementById("username");
-        const statsEl = document.getElementById("stats");
-        const copyAllBtn = document.getElementById("copyAllBtn");
-        const rawBtn = document.getElementById("rawBtn");
+    const grid = document.getElementById("grid");
+    const status = document.getElementById("status");
+    const userSection = document.getElementById("userSection");
+    const usernameEl = document.getElementById("username");
+    const statsEl = document.getElementById("stats");
+    const copyAllBtn = document.getElementById("copyAllBtn");
+    const rawBtn = document.getElementById("rawBtn");
+    const urlParams = new URLSearchParams(window.location.search);
+    const pasteID = urlParams.get("id");
+    let currentIDs = [];
 
-        const urlParams = new URLSearchParams(window.location.search);
-        const pasteID = urlParams.get("id");
+    async function load() {
+        if (!pasteID) {
+            status.innerText = "Walang ID sa URL. Halimbawa: ?id=pNxGRV6E";
+            return;
+        }
 
-        let currentIDs = [];
+        const fallback = "https://tr.rbxcdn.com/c4265017c98559993061733b1125a23c/48/48/AvatarHeadshot/Png";
 
-        async function load() {
-            if (!pasteID) {
-                status.innerText = "Walang ID sa URL. Halimbawa: ?id=pNxGRV6E";
+        try {
+            const proxy = "https://corsproxy.io/?";
+            const pasteApi = `https://api.pastefy.app/paste/${pasteID}`;
+            const res = await fetch(proxy + encodeURIComponent(pasteApi));
+            const data = await res.json();
+
+            if (!data.paste || !data.paste.content) {
+                throw new Error("Walang paste o content");
+            }
+
+            const content = data.paste.content;
+            currentIDs = content.match(/\d{6,}/g) || [];
+
+            if (currentIDs.length === 0) {
+                status.innerText = "Walang valid sticker IDs sa paste.";
                 return;
             }
 
-            const fallback = "https://tr.rbxcdn.com/c4265017c98559993061733b1125a23c/48/48/AvatarHeadshot/Png";
+            status.style.display = "none";
+            userSection.style.display = "block";
 
-            try {
-                const res = await fetch(`https://api.pastefy.app/paste/${pasteID}`);
-                const data = await res.json();
+            usernameEl.innerText = data.paste.title || "ZryoX's Stickers";
 
-                if (!data.paste || !data.paste.content) {
-                    throw new Error("Walang paste o content");
-                }
+            const dateStr = new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) + " " + new Date().toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+            statsEl.innerText = `${currentIDs.length} stickers · ${dateStr}`;
 
-                const content = data.paste.content;
-                currentIDs = content.match(/\d{6,}/g) || [];
+            rawBtn.onclick = () => window.open(`https://pastefy.app/${pasteID}/raw`);
 
-                if (currentIDs.length === 0) {
-                    status.innerText = "Walang valid sticker IDs sa paste.";
-                    return;
-                }
+            copyAllBtn.onclick = () => {
+                navigator.clipboard.writeText(currentIDs.join("\n"));
+                copyAllBtn.innerText = "Copied!";
+                setTimeout(() => copyAllBtn.innerText = "Copy All IDs", 1500);
+            };
 
-                // Show UI
-                status.style.display = "none";
-                userSection.style.display = "block";
+            grid.innerHTML = "";
 
-                // Username from paste title
-                usernameEl.innerText = data.paste.title || "ZryoX's Stickers";
-
-                // Stats with current date/time
-                const dateStr = new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) + " " + new Date().toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
-                statsEl.innerText = `${currentIDs.length} stickers · ${dateStr}`;
-
-                // RAW button
-                rawBtn.onclick = () => window.open(`https://pastefy.app/${pasteID}/raw`);
-
-                // Copy All IDs
-                copyAllBtn.onclick = () => {
-                    navigator.clipboard.writeText(currentIDs.join("\n"));
-                    copyAllBtn.innerText = "Copied!";
-                    setTimeout(() => copyAllBtn.innerText = "Copy All IDs", 1500);
-                };
-
-                // Clear grid
-                grid.innerHTML = "";
-
-                currentIDs.forEach(async (id) => {
-                    const card = document.createElement("div");
-                    card.className = "card";
-                    card.innerHTML = `
-                        <div class="image-container">
-                            <img class="sticker-img" alt="\( {id}" src=" \){fallback}">
-                        </div>
-                        <div class="card-info">
-                            <div class="asset-id">${id}</div>
-                            <button class="copy-btn" onclick="copyText('${id}', this)">Copy ID</button>
-                        </div>
-                    `;
-
-                    grid.appendChild(card);
-
-                    const img = card.querySelector("img");
-
-                    try {
-                        const proxy = "https://corsproxy.io/?";
-                        const apiUrl = `https://thumbnails.roblox.com/v1/assets?assetIds=${id}&size=420x420&format=Png&isCircular=false`;
-                        const thumbRes = await fetch(proxy + encodeURIComponent(apiUrl));
-                        const thumbData = await thumbRes.json();
-
-                        if (thumbData.data && thumbData.data[0] && thumbData.data[0].imageUrl) {
-                            img.src = thumbData.data[0].imageUrl;
-                        }
-                    } catch (e) {
-                        console.log("Thumbnail fetch failed for " + id, e);
+            currentIDs.forEach(async (id) => {
+                const card = document.createElement("div");
+                card.className = "card";
+                card.innerHTML = `
+                    <div class="image-container">
+                        <img class="sticker-img" alt="${id}" src="${fallback}">
+                    </div>
+                    <div class="card-info">
+                        <div class="asset-id">${id}</div>
+                        <button class="copy-btn" onclick="copyText('${id}', this)">Copy ID</button>
+                    </div>
+                `;
+                grid.appendChild(card);
+                const img = card.querySelector("img");
+                try {
+                    const apiUrl = `https://thumbnails.roblox.com/v1/assets?assetIds=${id}&size=420x420&format=Png&isCircular=false`;
+                    const thumbRes = await fetch(proxy + encodeURIComponent(apiUrl));
+                    const thumbData = await thumbRes.json();
+                    if (thumbData.data && thumbData.data[0] && thumbData.data[0].imageUrl) {
+                        img.src = thumbData.data[0].imageUrl;
                     }
-                });
+                } catch (e) {
+                    console.log("Error", e);
+                }
+            });
 
-            } catch (e) {
-                console.error(e);
-                status.innerText = "Error loading stickers. Check console.";
-            }
+        } catch (e) {
+            status.innerText = "Error loading stickers. Check console.";
         }
+    }
 
-        function copyText(text, btn) {
-            navigator.clipboard.writeText(text);
-            const orig = btn.innerText;
-            btn.innerText = "Copied!";
-            setTimeout(() => btn.innerText = orig, 1500);
-        }
+    function copyText(text, btn) {
+        navigator.clipboard.writeText(text);
+        const orig = btn.innerText;
+        btn.innerText = "Copied!";
+        setTimeout(() => btn.innerText = orig, 1500);
+    }
 
-        load();
-    </script>
+    load();
+</script>
 
 </body>
 </html>
