@@ -57,9 +57,11 @@
 
         async function load() {
             if (!pasteID) {
-                status.innerText = "Walang ID sa URL. Hal: ?id=ZjGxoLXk";
+                status.innerText = "Walang ID sa URL. Halimbawa: ?id=ZjGxoLXk";
                 return;
             }
+
+            const fallback = "https://tr.rbxcdn.com/c4265017c98559993061733b1125a23c/48/48/AvatarHeadshot/Png";
 
             try {
                 const res = await fetch(`https://api.pastefy.app/paste/${pasteID}`);
@@ -87,9 +89,7 @@
 
                 grid.innerHTML = "";
 
-                const fallback = "https://tr.rbxcdn.com/c4265017c98559993061733b1125a23c/48/48/AvatarHeadshot/Png";
-
-                currentIDs.forEach(async (id, index) => {
+                currentIDs.forEach(async (id) => {
                     const card = document.createElement("div");
                     card.className = "card";
                     card.innerHTML = `
@@ -99,7 +99,8 @@
                         <div class="card-details">
                             <div class="sticker-id">${id}</div>
                             <button class="copy-btn" onclick="copyText('${id}', this)">Copy ID</button>
-                        </div>`;
+                        </div>
+                    `;
 
                     grid.appendChild(card);
 
@@ -112,11 +113,10 @@
                         const thumbData = await thumbRes.json();
 
                         if (thumbData.data && thumbData.data[0] && thumbData.data[0].imageUrl) {
-                            img.src = thumbData.data[0].imageUrl; // hashed 180DAY link
+                            img.src = thumbData.data[0].imageUrl;
                         }
                     } catch (e) {
                         console.log("Thumbnail fetch failed for " + id, e);
-                        // fallback stays
                     }
                 });
 
