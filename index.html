@@ -35,6 +35,7 @@
 
         .user-section {
             margin-bottom: 25px;
+            display: none; /* Lalabas lang kapag may data na */
         }
 
         .username {
@@ -103,7 +104,7 @@
         .asset-id {
             font-family: monospace;
             font-size: 11px;
-            color: #555;
+            color: #555; /* Ginawa kong 555 para mas visible sa dark mode */
             margin-bottom: 8px;
             padding-left: 4px;
         }
@@ -125,11 +126,10 @@
             color: #fff;
         }
 
-        #status {
+        #loading-text {
             text-align: center;
-            color: #777;
-            margin: 50px 0;
-            font-size: 16px;
+            color: #555;
+            margin-top: 50px;
         }
     </style>
 </head>
@@ -140,115 +140,104 @@
         <p class="subtitle">Sticker Gallery</p>
     </div>
 
-    <div class="user-section" id="userSection" style="display:none;">
-        <p class="username" id="username">Loading...</p>
-        <p class="stats" id="stats">0 stickers · Loading...</p>
+    <div id="loading-text">Fetching stickers...</div>
+
+    <div class="user-section" id="user-info">
+        <p class="username" id="user-title">ZryoX's Stickers</p>
+        <p class="stats" id="user-stats">0 stickers · Loading...</p>
         
         <div class="button-group">
-            <button class="btn" id="copyAllBtn">Copy All IDs</button>
-            <button class="btn" id="rawBtn">RAW</button>
+            <button class="btn" id="copy-all">Copy All IDs</button>
+            <button class="btn" id="view-raw">RAW</button>
         </div>
     </div>
 
-    <div id="status">Fetching stickers...</div>
-    <div class="grid" id="grid"></div>
+    <div class="grid" id="sticker-grid">
+        </div>
 
     <script>
-    const grid = document.getElementById("grid");
-    const status = document.getElementById("status");
-    const userSection = document.getElementById("userSection");
-    const usernameEl = document.getElementById("username");
-    const statsEl = document.getElementById("stats");
-    const copyAllBtn = document.getElementById("copyAllBtn");
-    const rawBtn = document.getElementById("rawBtn");
-    const urlParams = new URLSearchParams(window.location.search);
-    const pasteID = urlParams.get("id");
-    let currentIDs = [];
+        const urlParams = new URLSearchParams(window.location.search);
+        const pasteID = urlParams.get('id');
+        const proxy = "https://corsproxy.io/?";
 
-    async function load() {
-        if (!pasteID) {
-            status.innerText = "Walang ID sa URL. Halimbawa: ?id=pNxGRV6E";
-            return;
-        }
-
-        const fallback = "https://tr.rbxcdn.com/c4265017c98559993061733b1125a23c/48/48/AvatarHeadshot/Png";
-
-        try {
-            const proxy = "https://corsproxy.io/?";
-            const pasteApi = `https://api.pastefy.app/paste/${pasteID}`;
-            const res = await fetch(proxy + encodeURIComponent(pasteApi));
-            const data = await res.json();
-
-            if (!data.paste || !data.paste.content) {
-                throw new Error("Walang paste o content");
-            }
-
-            const content = data.paste.content;
-            currentIDs = content.match(/\d{6,}/g) || [];
-
-            if (currentIDs.length === 0) {
-                status.innerText = "Walang valid sticker IDs sa paste.";
+        async function init() {
+            if (!pasteID) {
+                document.getElementById('loading-text').innerText = "";
                 return;
             }
 
-            status.style.display = "none";
-            userSection.style.display = "block";
+            try {
+                // Kunin ang data sa Pastefy
+                const res = await fetch(proxy + encodeURIComponent(`https://api.pastefy.app/paste/${pasteID}`));
+                const data = await res.json();
+                
+                const content = data.paste.content;
+                const ids = content.match(/\d{6,}/g) || []; // Lahat ng numbers na sticker ID
 
-            usernameEl.innerText = data.paste.title || "ZryoX's Stickers";
-
-            const dateStr = new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) + " " + new Date().toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
-            statsEl.innerText = `${currentIDs.length} stickers · ${dateStr}`;
-
-            rawBtn.onclick = () => window.open(`https://pastefy.app/${pasteID}/raw`);
-
-            copyAllBtn.onclick = () => {
-                navigator.clipboard.writeText(currentIDs.join("\n"));
-                copyAllBtn.innerText = "Copied!";
-                setTimeout(() => copyAllBtn.innerText = "Copy All IDs", 1500);
-            };
-
-            grid.innerHTML = "";
-
-            currentIDs.forEach(async (id) => {
-                const card = document.createElement("div");
-                card.className = "card";
-                card.innerHTML = `
-                    <div class="image-container">
-                        <img class="sticker-img" alt="${id}" src="${fallback}">
-                    </div>
-                    <div class="card-info">
-                        <div class="asset-id">${id}</div>
-                        <button class="copy-btn" onclick="copyText('${id}', this)">Copy ID</button>
-                    </div>
-                `;
-                grid.appendChild(card);
-                const img = card.querySelector("img");
-                try {
-                    const apiUrl = `https://thumbnails.roblox.com/v1/assets?assetIds=${id}&size=420x420&format=Png&isCircular=false`;
-                    const thumbRes = await fetch(proxy + encodeURIComponent(apiUrl));
-                    const thumbData = await thumbRes.json();
-                    if (thumbData.data && thumbData.data[0] && thumbData.data[0].imageUrl) {
-                        img.src = thumbData.data[0].imageUrl;
-                    }
-                } catch (e) {
-                    console.log("Error", e);
+                if (ids.length === 0) {
+                    document.getElementById('loading-text').innerText = "No stickers found in this paste.";
+                    return;
                 }
-            });
 
-        } catch (e) {
-            status.innerText = "Error loading stickers. Check console.";
+                // Ipakita ang UI
+                document.getElementById('loading-text').style.display = 'none';
+                document.getElementById('user-info').style.display = 'block';
+                document.getElementById('user-title').innerText = data.paste.title || "ZryoX's Stickers";
+                
+                const dateNow = new Date().toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' });
+                document.getElementById('user-stats').innerText = `${ids.length} stickers · ${dateNow}`;
+
+                // Buttons setup
+                document.getElementById('view-raw').onclick = () => window.open(`https://pastefy.app/${pasteID}/raw`);
+                document.getElementById('copy-all').onclick = () => {
+                    navigator.clipboard.writeText(ids.join('\n'));
+                    alert('All IDs copied to clipboard!');
+                };
+
+                const grid = document.getElementById('sticker-grid');
+
+                // I-loop ang IDs para gumawa ng cards
+                ids.forEach(id => {
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    
+                    // Gamitin ang Roblox Thumbnail API via Proxy para makuha ang CDN link
+                    const thumbUrl = `https://thumbnails.roblox.com/v1/assets?assetIds=${id}&size=420x420&format=Png&isCircular=false`;
+                    
+                    card.innerHTML = `
+                        <div class="image-container">
+                            <img id="img-${id}" src="https://tr.rbxcdn.com/c4265017c98559993061733b1125a23c/48/48/AvatarHeadshot/Png" alt="Sticker">
+                        </div>
+                        <div class="card-info">
+                            <div class="asset-id">${id}</div>
+                            <button class="copy-btn" onclick="copyId('${id}', this)">Copy ID</button>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+
+                    // I-update ang image kapag nakuha na ang totoong CDN link
+                    fetch(proxy + encodeURIComponent(thumbUrl))
+                        .then(r => r.json())
+                        .then(d => {
+                            if (d.data && d.data[0].imageUrl) {
+                                document.getElementById(`img-${id}`).src = d.data[0].imageUrl;
+                            }
+                        });
+                });
+
+            } catch (err) {
+                document.getElementById('loading-text').innerText = "Error loading stickers. Check Paste ID.";
+            }
         }
-    }
 
-    function copyText(text, btn) {
-        navigator.clipboard.writeText(text);
-        const orig = btn.innerText;
-        btn.innerText = "Copied!";
-        setTimeout(() => btn.innerText = orig, 1500);
-    }
+        window.copyId = (id, btn) => {
+            navigator.clipboard.writeText(id);
+            const originalText = btn.innerText;
+            btn.innerText = "Copied!";
+            setTimeout(() => btn.innerText = originalText, 1000);
+        };
 
-    load();
-</script>
-
+        init();
+    </script>
 </body>
 </html>
